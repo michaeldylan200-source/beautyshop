@@ -1,18 +1,40 @@
-// firebase.js
-import { initializeApp } from "firebase/app";
-import { getDatabase } from "firebase/database";
-import { getStorage } from "firebase/storage";
+'use client';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDhkpoM-7_Ns_YTWkDSw-8xWKkAUw6N0PE",
-  authDomain: "adani-beauty-and-wellness.firebaseapp.com",
-  databaseURL: "https://adani-beauty-and-wellness-default-rtdb.firebaseio.com",
-  projectId: "adani-beauty-and-wellness",
-  storageBucket: "adani-beauty-and-wellness.firebasestorage.app",
-  messagingSenderId: "211419892764",
-  appId: "1:211419892764:web:b5648ce96e7856720163d9"
-};
+import React, { useEffect, useState } from 'react';
+import { db } from '../lib/firebase';
+import { ref, onValue } from 'firebase/database';
 
-const app = initializeApp(firebaseConfig);
-export const db = getDatabase(app);
-export const storage = getStorage(app);
+export default function Home() {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    // Example: Fetch data from Firebase
+    const productsRef = ref(db, 'products');
+    onValue(productsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setProducts(Object.values(data));
+      }
+    });
+  }, []);
+
+  return (
+    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+      <h1>Welcome to Adani Beauty Shop</h1>
+      <p>Your beauty and wellness destination</p>
+      
+      <div>
+        <h2>Products</h2>
+        {products.length > 0 ? (
+          <ul>
+            {products.map((product, index) => (
+              <li key={index}>{product.name || 'Product'}</li>
+            ))}
+          </ul>
+        ) : (
+          <p>Loading products...</p>
+        )}
+      </div>
+    </div>
+  );
+}
